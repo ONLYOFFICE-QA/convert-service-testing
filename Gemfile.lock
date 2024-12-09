@@ -28,7 +28,7 @@ GEM
       base64
     language_server-protocol (3.17.0.3)
     mini_portile2 (2.8.8)
-    nokogiri (1.16.8)
+    nokogiri (1.17.0)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     onlyoffice_bugzilla_helper (0.6.1)

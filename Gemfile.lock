@@ -23,7 +23,7 @@ GEM
     base64 (0.2.0)
     diff-lcs (1.5.1)
     jmespath (1.6.2)
-    json (2.9.0)
+    json (2.9.1)
     jwt (2.9.3)
       base64
     language_server-protocol (3.17.0.3)

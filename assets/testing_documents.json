@@ -29,7 +29,8 @@
     "xml/xml_document_Word.xml",
     "vsdx/FindReplaceText.vsdx",
     "hwp/test_endnote.hwp",
-    "hwpx/2022.hwpx"
+    "hwpx/2022.hwpx",
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
   ],
 
   "protected_documents": [
@@ -66,7 +67,9 @@
     "txt/3_WMAPI.txt",
     "wps/document wps writer 02Test.wps",
     "wpt/template_wps_writer 02Test.wpt",
-    "xml/xml_document_Word.xml"
+    "xml/xml_document_Word.xml",
+    "hwp/test_endnote.hwp",
+    "hwpx/2022.hwpx"
   ],
 
   "documents_to_odf": [
@@ -95,6 +98,8 @@
     "wps/document wps writer 02Test.wps",
     "wpt/template_wps_writer 02Test.wpt",
     "xps/0inDashArray.xps",
-    "xml/xml_document_Word.xml"
+    "xml/xml_document_Word.xml",
+    "hwp/test_endnote.hwp",
+    "hwpx/2022.hwpx"
   ]
 }

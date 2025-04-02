@@ -14,7 +14,8 @@
     "xltm/123_1 (3).xltm",
     "xlsx/__ (2).xlsx",
     "xltx/Расписание смен1.xltx",
-    "xml/xml_spreadsheet_2003_6.xml"
+    "xml/xml_spreadsheet_2003_6.xml",
+    "numbers/bug.numbers"
   ],
 
   "protected_spreadsheets": [
@@ -40,7 +41,8 @@
     "xls/_.xls",
     "xlt/cwods.xlt",
     "xltx/Расписание смен1.xltx",
-    "xml/xml_spreadsheet_2003_6.xml"
+    "xml/xml_spreadsheet_2003_6.xml",
+    "numbers/bug.numbers"
   ],
 
   "spreadsheets_to_odf": [
@@ -58,6 +60,7 @@
     "xltm/123_1 (3).xltm",
     "xlsx/__ (2).xlsx",
     "xltx/Расписание смен1.xltx",
-    "xml/xml_spreadsheet_2003_6.xml"
+    "xml/xml_spreadsheet_2003_6.xml",
+    "numbers/bug.numbers"
   ]
 }

@@ -14,7 +14,8 @@
     "ppsx/япония.ppsx",
     "ppt/1.ppt",
     "pptx/2.pptx",
-    "sxi/3_A-IMA.sxi"
+    "sxi/3_A-IMA.sxi",
+    "key/2.key"
   ],
 
   "protected_presentations": [
@@ -37,7 +38,8 @@
     "pot/VP.pot",
     "ppt/presentation_without_macros.ppt",
     "pps/test.pps",
-    "sxi/3_A-IMA.sxi"
+    "sxi/3_A-IMA.sxi",
+    "key/2.key"
   ],
 
   "presentations_to_odf": [
@@ -55,6 +57,7 @@
     "ppsx/япония.ppsx",
     "ppt/1.ppt",
     "pptx/2.pptx",
-    "sxi/3_A-IMA.sxi"
+    "sxi/3_A-IMA.sxi",
+    "key/2.key"
   ]
 }

@@ -69,7 +69,8 @@
     "wpt/template_wps_writer 02Test.wpt",
     "xml/xml_document_Word.xml",
     "hwp/test_endnote.hwp",
-    "hwpx/2022.hwpx"
+    "hwpx/2022.hwpx",
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
   ],
 
   "documents_to_odf": [
@@ -100,6 +101,7 @@
     "xps/0inDashArray.xps",
     "xml/xml_document_Word.xml",
     "hwp/test_endnote.hwp",
-    "hwpx/2022.hwpx"
+    "hwpx/2022.hwpx",
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
   ]
 }

@@ -16,7 +16,7 @@
     "pptx/2.pptx",
     "sxi/3_A-IMA.sxi",
     "key/2.key",
-    "karbon_grad.odg"
+    "odg/karbon_grad.odg"
   ],
 
   "protected_presentations": [
@@ -41,7 +41,7 @@
     "pps/test.pps",
     "sxi/3_A-IMA.sxi",
     "key/2.key",
-    "karbon_grad.odg"
+    "odg/karbon_grad.odg"
   ],
 
   "presentations_to_odf": [
@@ -61,6 +61,6 @@
     "pptx/2.pptx",
     "sxi/3_A-IMA.sxi",
     "key/2.key",
-    "karbon_grad.odg"
+    "odg/karbon_grad.odg"
   ]
 }

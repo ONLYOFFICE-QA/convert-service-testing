@@ -30,7 +30,9 @@
     "vsdx/FindReplaceText.vsdx",
     "hwp/test_endnote.hwp",
     "hwpx/2022.hwpx",
-    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages",
+    "md/5410.md",
+    "file-1.ofd"
   ],
 
   "protected_documents": [
@@ -70,7 +72,8 @@
     "xml/xml_document_Word.xml",
     "hwp/test_endnote.hwp",
     "hwpx/2022.hwpx",
-    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages",
+    "md/5410.md"
   ],
 
   "documents_to_odf": [
@@ -102,6 +105,7 @@
     "xml/xml_document_Word.xml",
     "hwp/test_endnote.hwp",
     "hwpx/2022.hwpx",
-    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages"
+    "pages/_site__pdfs_education_2011_DiscoveryinthePark_68_pages.pages",
+    "md/5410.md"
   ]
 }

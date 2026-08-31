@@ -102,10 +102,15 @@ This project need to test onlyoffice documentserver via [convert service](https:
 
 ## Reports
 
-  Results of each spec file are written to
-  `reports/[documentserver version]/[run name]_[timestamp].csv`
-  by the `TestReport` helper, `csv` reading and writing itself
-  is done by the `CsvReport` helper.
+  All spec files write results to the single report of the tested version:
+
+  ```text
+    reports/[version]/[version].csv              - all tests of the version
+    reports/[version]/[version](errors_only).csv - failed tests only
+  ```
+
+  Reports are filled by the `TestReport` helper,
+  `csv` reading and writing itself is done by the `CsvReport` helper.
 
   Report columns:
 
@@ -119,13 +124,14 @@ This project need to test onlyoffice documentserver via [convert service](https:
   | `Run` | name of the run, matches the spec file |
   | `Time` | time of the test in seconds |
 
-  After the run, results are printed to the console and
-  the additional `[run name]_[timestamp](errors_only).csv` report
-  is created if there are tests which are not `passed` or `pending`.
+  After the run, failed tests are printed to the console and
+  the `(errors_only)` report is rewritten,
+  or deleted if all tests of the version are `passed` or `pending`.
 
   Tests already finished with a `passed` or `pending` status in the previous
   runs of the same documentserver version are skipped, so the repeated run
-  checks only the failed tests.
+  checks only the failed tests. The report keeps only the last result
+  of every test, so the repeated run replaces the outdated results.
 
   Optional `ENV`s:
 

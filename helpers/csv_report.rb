@@ -8,15 +8,33 @@ class CsvReport
   DEFAULT_DELIMITER = "\t"
 
   class << self
-    # Writes one row to the csv file
+    # Creates the report with titles, does nothing if the report already exists
     # @param file_path [String] path to the csv file
-    # @param mode [String] file opening mode, `w` to create, `a` to append
+    # @param titles [Array] titles of the columns
+    # @param delimiter [String] delimiter used in the csv file
+    # @return [String, nil] path to the created file, nil if the report already exists
+    def create(file_path, titles, delimiter: DEFAULT_DELIMITER)
+      FileUtils.mkdir_p(File.dirname(file_path))
+      File.open(file_path, File::WRONLY | File::CREAT | File::EXCL) do |file|
+        file.write(CSV.generate_line(titles, col_sep: delimiter))
+      end
+      file_path
+    rescue Errno::EEXIST
+      nil
+    end
+
+    # Adds one row to the end of the report
+    # @param file_path [String] path to the csv file
     # @param row [Array] values of the row
     # @param delimiter [String] delimiter used in the csv file
     # @return [nil]
-    def write(file_path, mode, row, delimiter: DEFAULT_DELIMITER)
+    # @note the exclusive lock allows several rspec processes to write to the same report
+    def append(file_path, row, delimiter: DEFAULT_DELIMITER)
       FileUtils.mkdir_p(File.dirname(file_path))
-      CSV.open(file_path, mode, col_sep: delimiter) { |csv| csv << row }
+      File.open(file_path, 'a') do |file|
+        file.flock(File::LOCK_EX)
+        file.write(CSV.generate_line(row, col_sep: delimiter))
+      end
       nil
     end
 
@@ -30,20 +48,23 @@ class CsvReport
       CSV.read(file_path, col_sep: delimiter, headers: true).map(&:to_h)
     end
 
-    # Saves rows to the csv file
+    # Rewrites the report with the given rows
     # @param rows [Array<Hash>] rows to save
     # @param file_path [String] path to the csv file
     # @param delimiter [String] delimiter used in the csv file
     # @return [String, nil] path to the saved file, nil if there is nothing to save
+    # @note the report is replaced by the temporary file, so it never stays partially written
     def save(rows, file_path, delimiter: DEFAULT_DELIMITER)
       return nil if rows.empty?
 
       titles = rows.first.keys
+      tmp_path = "#{file_path}.#{Process.pid}.tmp"
       FileUtils.mkdir_p(File.dirname(file_path))
-      CSV.open(file_path, 'w', col_sep: delimiter) do |csv|
+      CSV.open(tmp_path, 'w', col_sep: delimiter) do |csv|
         csv << titles
         rows.each { |row| csv << titles.map { |title| row[title] } }
       end
+      File.rename(tmp_path, file_path)
       file_path
     end
 

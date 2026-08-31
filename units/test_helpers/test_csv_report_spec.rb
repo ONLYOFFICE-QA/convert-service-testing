@@ -9,9 +9,17 @@ describe CsvReport do
 
   it 'creates the report with titles and rows' do
     path = File.join(tmp_dir, 'nested', 'report.csv')
-    described_class.write(path, 'w', %w[Test_name Status])
-    described_class.write(path, 'a', ['docx to pdf', 'passed'])
+    expect(described_class.create(path, %w[Test_name Status])).to eq(path)
+    described_class.append(path, ['docx to pdf', 'passed'])
     expect(described_class.read(path)).to eq([{ 'Test_name' => 'docx to pdf', 'Status' => 'passed' }])
+  end
+
+  it 'does not create the report which already exists' do
+    path = File.join(tmp_dir, 'report.csv')
+    described_class.create(path, %w[Test_name Status])
+    described_class.append(path, ['docx to pdf', 'passed'])
+    expect(described_class.create(path, %w[Test_name Status])).to be_nil
+    expect(described_class.read(path).count).to eq(1)
   end
 
   it 'returns an empty array for a non-existent report' do
@@ -23,6 +31,14 @@ describe CsvReport do
     rows = [{ 'Test_name' => 'docx to pdf', 'Status' => 'failed' }]
     expect(described_class.save(rows, path)).to eq(path)
     expect(described_class.read(path)).to eq(rows)
+  end
+
+  it 'rewrites the existing report without temporary files left' do
+    path = File.join(tmp_dir, 'saved.csv')
+    described_class.save([{ 'Test_name' => 'docx to pdf', 'Status' => 'failed' }], path)
+    described_class.save([{ 'Test_name' => 'docx to odt', 'Status' => 'passed' }], path)
+    expect(described_class.read(path)).to eq([{ 'Test_name' => 'docx to odt', 'Status' => 'passed' }])
+    expect(Dir.glob(File.join(tmp_dir, '*.tmp'))).to be_empty
   end
 
   it 'does not save an empty report' do

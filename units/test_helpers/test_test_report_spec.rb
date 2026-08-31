@@ -28,16 +28,21 @@ describe TestReport do
 
   # Writes the report of the previous run of the same version
   # @param results [Array<Array>] test names with their statuses
+  # @param run [String] name of the run
   # @return [String] path to the report
-  def write_previous_report(results)
-    path = File.join(tmp_dir, '10.0.0.44', 'Documents_to_All_2024_01_01_00_00_00.csv')
-    CsvReport.write(path, 'w', described_class::TITLES)
-    results.each { |name, status| CsvReport.write(path, 'a', [name, status, '', '', version, run_name, 1.0]) }
-    path
+  def write_previous_report(results, run: run_name)
+    CsvReport.create(report.path, described_class::TITLES)
+    results.each { |name, status| CsvReport.append(report.path, [name, status, '', '', version, run, 1.0]) }
+    report.path
   end
 
-  it 'stores the report in the directory named by the documentserver version' do
-    expect(File.dirname(report.path)).to eq(File.join(tmp_dir, '10.0.0.44'))
+  it 'stores the report named by the documentserver version' do
+    expect(report.path).to eq(File.join(tmp_dir, '10.0.0.44', '10.0.0.44.csv'))
+    expect(report.errors_path).to eq(File.join(tmp_dir, '10.0.0.44', '10.0.0.44(errors_only).csv'))
+  end
+
+  it 'writes results of all runs of the version to the same report' do
+    expect(described_class.new(version, 'Documents to Odf', reports_dir: tmp_dir).path).to eq(report.path)
   end
 
   it 'writes the passed result' do
@@ -92,10 +97,23 @@ describe TestReport do
     expect(report.completed_tests(StaticData::POSITIVE_STATUSES)).to eq(['docx to pdf', 'docx to txt'])
   end
 
+  it 'returns the completed tests of its own run only' do
+    write_previous_report([['docx to pdf', 'passed']], run: 'Documents to Odf')
+    expect(report.completed_tests(StaticData::POSITIVE_STATUSES)).to eq([])
+  end
+
   it 'returns no completed tests when the previous results are disabled' do
     write_previous_report([['docx to pdf', 'passed']])
     allow(StaticData).to receive(:skip_completed_tests?).and_return(false)
     expect(report.completed_tests(StaticData::POSITIVE_STATUSES)).to eq([])
+  end
+
+  it 'leaves the last result of the test in the report' do
+    write_previous_report([['docx to pdf', 'failed']])
+    report.add_result(example_stub('docx to pdf'))
+    report.handler
+    expect(CsvReport.read(report.path)).to contain_exactly(include('Test_name' => 'docx to pdf',
+                                                                   'Status' => 'passed'))
   end
 
   it 'saves the report with the failed tests only' do
@@ -105,9 +123,21 @@ describe TestReport do
     expect(CsvReport.read(report.errors_path).map { |row| row['Test_name'] }).to eq(['docx to odt'])
   end
 
-  it 'does not save the report with the failed tests only when all tests passed' do
+  it 'deletes the outdated report with the failed tests' do
+    report.add_result(example_stub('docx to pdf', exception: ArgumentError.new('no host')))
+    report.handler
     report.add_result(example_stub('docx to pdf'))
     report.handler
     expect(File).not_to exist(report.errors_path)
+  end
+
+  it 'handles the report of the version only once' do
+    second_report = described_class.new(version, 'Documents to Odf', reports_dir: tmp_dir)
+    allow(described_class).to receive(:reports).and_return([report, second_report])
+    allow(report).to receive(:handler)
+    allow(second_report).to receive(:handler)
+    described_class.print_summary
+    expect(report).to have_received(:handler).once
+    expect(second_report).not_to have_received(:handler)
   end
 end

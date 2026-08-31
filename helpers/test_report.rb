@@ -3,10 +3,10 @@
 require_relative 'csv_report'
 require_relative 'example_status'
 
-# Collects rspec results of the one run and writes them to the csv report
+# Collects rspec results and writes them to the single csv report of the tested version
 class TestReport
   TITLES = %w[Test_name Status Comment Extra_info Version Run Time].freeze
-  CONSOLE_TITLES = %w[Test_name Status Comment Extra_info].freeze
+  CONSOLE_TITLES = %w[Run Test_name Status Comment Extra_info].freeze
   VERSION_PATTERN = /\d+\.\d+\.\d+\.\d+/
 
   attr_reader :path, :errors_path, :run_name, :version
@@ -17,24 +17,24 @@ class TestReport
       @reports ||= []
     end
 
-    # Prints results of all reports created during the current rspec run
+    # Prints results of the current rspec run
     # @return [nil]
+    # @note all spec files write to the report of the version, so it is handled only once
     def print_summary
-      reports.each(&:handler)
+      reports.uniq(&:path).each(&:handler)
       nil
     end
   end
 
-  # @param version [String] tested documentserver version, used as a report directory name
-  # @param run_name [String] name of the run, used as a report file name
+  # @param version [String] tested documentserver version, used as a report name
+  # @param run_name [String] name of the run, written to the `Run` column
   # @param reports_dir [String] root directory for all reports
   def initialize(version, run_name, reports_dir: StaticData.reports_folder)
     @version = version.to_s.strip.empty? ? 'unknown' : version.to_s.strip
     @run_name = run_name
-    @dir = File.join(reports_dir, version_dir_name)
-    name = file_name
-    @path = File.join(@dir, "#{name}.csv")
-    @errors_path = File.join(@dir, "#{name}(errors_only).csv")
+    name = report_name
+    @path = File.join(reports_dir, name, "#{name}.csv")
+    @errors_path = File.join(reports_dir, name, "#{name}(errors_only).csv")
     self.class.reports << self
   end
 
@@ -56,56 +56,61 @@ class TestReport
   # @return [String] status of the example
   def add_result(example, file_data = nil, server_response = nil)
     status, comment = ExampleStatus.of(example)
-    CsvReport.write(@path, 'w', TITLES) unless File.file?(@path)
-    CsvReport.write(@path, 'a', [example.metadata[:description],
-                                 status,
-                                 comment,
-                                 extra_info(file_data, server_response),
-                                 @version,
-                                 @run_name,
-                                 run_time(example)])
+    CsvReport.create(@path, TITLES)
+    CsvReport.append(@path, [example.metadata[:description],
+                             status,
+                             comment,
+                             extra_info(file_data, server_response),
+                             @version,
+                             @run_name,
+                             run_time(example)])
     status
   end
 
-  # Names of the tests already finished with one of the statuses in the reports of the previous runs
+  # Names of the tests of this run already finished with one of the statuses
   # @param statuses [Array<String>] statuses which mean that the test should not be run again
   # @return [Array<String>] names of the finished tests
   def completed_tests(statuses)
     return [] unless StaticData.skip_completed_tests?
 
-    previous_reports.flat_map do |report|
-      CsvReport.read(report)
-               .select { |row| statuses.include?(row['Status']) }
-               .map { |row| row['Test_name'] }
-    end.uniq
+    CsvReport.read(@path)
+             .select { |row| row['Run'] == @run_name && statuses.include?(row['Status']) }
+             .map { |row| row['Test_name'] }
+             .uniq
   end
 
-  # Prints results of the run and saves the report with the failed tests only
+  # Leaves the actual result of every test in the report, saves the report with the failed tests only
+  # and prints the results to the console
   # @return [nil]
   def handler
-    rows = CsvReport.read(@path)
-    return OnlyofficeLoggerHelper.log("No new results for `#{@run_name}`") if rows.empty?
+    rows = actual_results(CsvReport.read(@path))
+    return OnlyofficeLoggerHelper.log("No results in #{@path}") if rows.empty?
 
+    CsvReport.save(rows, @path)
     errors = rows.reject { |row| StaticData::POSITIVE_STATUSES.include?(row['Status']) }
-    puts("\n#{'-' * 90}\n#{@run_name}\n#{CsvReport.to_table(errors, titles: CONSOLE_TITLES)}") unless errors.empty?
-    log_paths(rows, errors)
+    puts("\n#{'-' * 90}\n#{@version}\n#{CsvReport.to_table(errors, titles: CONSOLE_TITLES)}") unless errors.empty?
+    log_results(rows, errors)
     nil
   end
 
   private
 
-  def log_paths(rows, errors)
-    CsvReport.save(errors, @errors_path)
-    OnlyofficeLoggerHelper.log("Report: #{@path}")
-    return OnlyofficeLoggerHelper.green_log("All #{rows.count} tests passed") if errors.empty?
-
-    OnlyofficeLoggerHelper.red_log("Failed tests: #{errors.count} of #{rows.count}, report: #{@errors_path}")
+  # The test can be run several times, only the last of its results is actual
+  # @param rows [Array<Hash>] all rows of the report
+  # @return [Array<Hash>] one row per test
+  def actual_results(rows)
+    rows.to_h { |row| [[row['Run'], row['Test_name']], row] }.values
   end
 
-  # @return [Array<String>] paths to the reports of the same run and version written before the current one
-  def previous_reports
-    Dir.glob(File.join(@dir, "#{sanitize(@run_name)}_*.csv"))
-       .reject { |report| report.end_with?('(errors_only).csv') }
+  def log_results(rows, errors)
+    OnlyofficeLoggerHelper.log("Report: #{@path}")
+    if errors.empty?
+      File.delete(@errors_path) if File.file?(@errors_path)
+      return OnlyofficeLoggerHelper.green_log("All #{rows.count} tests passed")
+    end
+
+    CsvReport.save(errors, @errors_path)
+    OnlyofficeLoggerHelper.red_log("Failed tests: #{errors.count} of #{rows.count}, report: #{@errors_path}")
   end
 
   # @param file_data [Integer, nil] size of the converted image
@@ -132,18 +137,7 @@ class TestReport
     result.started_at ? (Time.now - result.started_at).round(2) : nil
   end
 
-  def version_dir_name
-    @version[VERSION_PATTERN] || sanitize(@version)
-  end
-
-  # Timestamp and rspec process number keep reports of the parallel and repeated runs separated
-  def file_name
-    [sanitize(@run_name),
-     Time.now.strftime('%Y_%m_%d_%H_%M_%S'),
-     ENV.fetch('TEST_ENV_NUMBER', nil)].compact.reject(&:empty?).join('_')
-  end
-
-  def sanitize(value)
-    value.gsub(/[^\w.-]+/, '_').gsub(/\A_+|_+\z/, '')
+  def report_name
+    @version[VERSION_PATTERN] || @version.gsub(/[^\w.-]+/, '_').gsub(/\A_+|_+\z/, '')
   end
 end

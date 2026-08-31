@@ -21,7 +21,6 @@ Naming/AccessorMethodName:
   Exclude:
     - 'config/StaticData.rb'
     - 'helpers/document_server_helper.rb'
-    - 'helpers/palladium_helper.rb'
 
 # Offense count: 1
 # Configuration parameters: ExpectMatchingDefinition, CheckDefinitionPathHierarchy, CheckDefinitionPathHierarchyRoots, Regex, IgnoreExecutableScripts, AllowedAcronyms.
@@ -94,4 +93,3 @@ Style/Documentation:
     - 'test/**/*'
     - 'config/StaticData.rb'
     - 'helpers/document_server_helper.rb'
-    - 'helpers/palladium_helper.rb'

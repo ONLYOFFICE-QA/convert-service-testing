@@ -11,11 +11,13 @@ require_relative '../config/StaticData'
 require_relative '../helpers/document_server_helper'
 require_relative '../helpers/file_helper'
 require_relative '../helpers/image_helper'
-require_relative '../helpers/palladium_helper'
+require_relative '../helpers/csv_report'
+require_relative '../helpers/example_status'
+require_relative '../helpers/test_report'
 require_relative '../helpers/pretests_check'
 
-# ENV['DOCUMENTSERVER'] = ''
-# ENV['NGINX'] = ''
+ENV['DOCUMENTSERVER'] = 'http://192.168.0.178'
+ENV['NGINX'] = 'http://192.168.0.178:3000'
 # ENV['DOCUMENTSERVER_JWT'] = ''
 
 PretestsCheck.pretests_check
@@ -46,6 +48,8 @@ RSpec.configure do |config|
   end
 
   config.shared_context_metadata_behavior = :apply_to_host_groups
+
+  config.after(:suite) { TestReport.print_summary }
 end
 
 # Method returns uri taking the path to the file

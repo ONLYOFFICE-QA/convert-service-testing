@@ -26,14 +26,12 @@ class PretestsCheck
     s3_check = s3_available?(tmp_dir)
     documentserver_check = documentserver_available?
     nginx_check = nginx_available?(tmp_dir)
-    palladium_token = palladium_token?
     s3_files_exists = s3_files_exists?
 
-    unless s3_check && documentserver_check && nginx_check && palladium_token && s3_files_exists
+    unless s3_check && documentserver_check && nginx_check && s3_files_exists
       colorize_log("Documentserver check: #{documentserver_check}")
       colorize_log("Nginx check: #{nginx_check}")
       colorize_log("S3 check: #{s3_check}")
-      colorize_log("Palladium token: #{palladium_token}")
       colorize_log("S3 files exists: #{s3_files_exists}")
       raise 'Pre-test checks is failed!'
     end
@@ -95,15 +93,6 @@ class PretestsCheck
     res = req.request_get(path)
     res.code != '404'
   rescue StandardError
-    false
-  end
-
-  def self.palladium_token?
-    return true unless File.read("#{Dir.home}/.palladium/token").strip.empty?
-
-    false
-  rescue Errno::ENOENT => e
-    OnlyofficeLoggerHelper.log(e.to_s)
     false
   end
 

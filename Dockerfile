@@ -3,7 +3,6 @@ FROM ruby:3.4
 MAINTAINER Dmitriy.Rotatii "kvazilife@gmail.com"
 ENV S3_KEY ""
 ENV S3_PRIVATE_KEY ""
-ENV PALLADIUM_TOKEN ""
 ENV DOCUMENTSERVER_JWT ""
 RUN mkdir -pv ~/.s3 && \
     echo $S3_KEY > ~/.s3/key && \
@@ -11,9 +10,6 @@ RUN mkdir -pv ~/.s3 && \
 
 RUN mkdir ~/.documentserver
 RUN echo $DOCUMENTSERVER_JWT > ~/.documentserver/documentserver_jwt
-
-RUN mkdir ~/.palladium
-RUN echo $PALLADIUM_TOKEN > ~/.palladium/token
 
 RUN apt-get update && apt-get -y -q install libmagic-dev
 

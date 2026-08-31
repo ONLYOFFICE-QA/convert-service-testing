@@ -3,8 +3,8 @@
 require './spec/spec_helper'
 require 'nokogiri'
 
-palladium = PalladiumHelper.new DocumentServerHelper.get_version, 'Spreadsheets to Ooxml'
-result_sets = palladium.get_result_sets StaticData::POSITIVE_STATUSES
+report = TestReport.new(DocumentServerHelper.get_version, 'Spreadsheets to Ooxml')
+completed_tests = report.completed_tests(StaticData::POSITIVE_STATUSES)
 files = StaticData::SPREADSHEETS['spreadsheets_to_ooxml']
 
 describe 'Convert spreadsheets to ooxml format by convert service' do
@@ -15,7 +15,7 @@ describe 'Convert spreadsheets to ooxml format by convert service' do
 
   files.each do |s3_file_path|
     test_name = "#{File.extname(s3_file_path).delete('.')} to ooxml"
-    next if result_sets.include?(test_name)
+    next if completed_tests.include?(test_name)
 
     it test_name do
       file_path = s3.download_file_by_name(s3_file_path, @tmp_dir)
@@ -32,6 +32,6 @@ describe 'Convert spreadsheets to ooxml format by convert service' do
 
   after do |example|
     FileUtils.rm_rf(@tmp_dir, secure: true)
-    palladium.add_result_and_log(example)
+    report.add_result_and_log(example)
   end
 end

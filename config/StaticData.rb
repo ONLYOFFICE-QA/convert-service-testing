@@ -4,8 +4,7 @@ require 'json'
 
 class StaticData
   PROJECT_NAME = 'Convert Service Testing'
-  POSITIVE_STATUSES = %w[passed passed_2 pending].freeze
-  PALLADIUM_SERVER = 'palladium.teamlab.info'
+  POSITIVE_STATUSES = %w[passed pending].freeze
 
   MIN_DOCX_IMAGE_SIZE = 5327
   MIN_PPTX_IMAGE_SIZE = 1085
@@ -21,6 +20,7 @@ class StaticData
   MIN_XML_IMAGE_SIZE = 11_932
 
   TMP_FOLDER = File.join(Dir.pwd, 'files_tmp')
+  DEFAULT_REPORTS_FOLDER = File.join(Dir.pwd, 'reports')
 
   INVALID_TOKEN_ERROR = '-8'
 
@@ -49,9 +49,13 @@ class StaticData
     ENV.fetch('DOCUMENTSERVER', 'http://documentserver')
   end
 
-  def self.get_palladium_token
-    return ENV.fetch('PALLADIUM_TOKEN') if ENV.key?('PALLADIUM_TOKEN')
+  def self.reports_folder
+    folder = ENV.fetch('REPORTS_FOLDER', '')
+    folder.empty? ? DEFAULT_REPORTS_FOLDER : folder
+  end
 
-    File.read("#{Dir.home}/.palladium/token")
+  # Tests finished with a positive status in the previous runs of the same version are skipped by default
+  def self.skip_completed_tests?
+    %w[true 1 yes].include?(ENV.fetch('SKIP_COMPLETED_TESTS', 'true').downcase)
   end
 end

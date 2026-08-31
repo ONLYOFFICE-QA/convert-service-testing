@@ -19,7 +19,7 @@ services:
     ports:
       - "3000:80"
     volumes:
-      - documents_volume:/usr/share/nginx/html/
+      - ./files_tmp:/usr/share/nginx/html/
   testing_project:
     build: ./
     tty: true
@@ -32,3 +32,4 @@ services:
     command: ["./entrypoint.sh"]
     volumes:
       - documents_volume:/convert_service_testing/files_tmp/
+      - ./reports:/convert_service_testing/reports/

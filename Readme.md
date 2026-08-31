@@ -70,7 +70,6 @@ This project need to test onlyoffice documentserver via [convert service](https:
 
       * `S3_KEY` - is a s3 public key
       * `S3_PRIVATE_KEY` - is a s3 private key
-      * `PALLADIUM_TOKEN` - token for write result to **palladium**
       * `DOCUMENTSERVER_JWT` - **JWT** key is used by default (see the
       [documentation](https://helpcenter.onlyoffice.com/installation/docs-community-install-docker.aspx)
       on configuring the server document)
@@ -87,7 +86,8 @@ This project need to test onlyoffice documentserver via [convert service](https:
         docker-compose up -d
       ```
 
-  4. In a few minutes the results will start to be recorded in `palladium`
+  4. In a few minutes the results will start to be recorded
+  in the `csv` reports inside the `reports` folder
 
 ## How it work
 
@@ -97,7 +97,42 @@ This project need to test onlyoffice documentserver via [convert service](https:
   After it, `testing_project` will send request to document server
   with link to file from `nginx`.
 
-  After conversion, response will parsed, and result will send to [palladium](https://github.com/ONLYOFFICE-QA/palladium-view)
+  After conversion, response will parsed,
+  and result will be written to the `csv` report
+
+## Reports
+
+  Results of each spec file are written to
+  `reports/[documentserver version]/[run name]_[timestamp].csv`
+  by the `TestReport` helper, `csv` reading and writing itself
+  is done by the `CsvReport` helper.
+
+  Report columns:
+
+  | Column | Description |
+  | --- | --- |
+  | `Test_name` | name of the test, for example `docx to pdf` |
+  | `Status` | `passed`, `failed`, `aborted` or `pending` |
+  | `Comment` | `Ok` or the reason of the failed test |
+  | `Extra_info` | image size or the error of the convert service |
+  | `Version` | tested documentserver version |
+  | `Run` | name of the run, matches the spec file |
+  | `Time` | time of the test in seconds |
+
+  After the run, results are printed to the console and
+  the additional `[run name]_[timestamp](errors_only).csv` report
+  is created if there are tests which are not `passed` or `pending`.
+
+  Tests already finished with a `passed` or `pending` status in the previous
+  runs of the same documentserver version are skipped, so the repeated run
+  checks only the failed tests.
+
+  Optional `ENV`s:
+
+  1. `REPORTS_FOLDER` - path to the folder with reports, `./reports` by default
+
+  2. `SKIP_COMPLETED_TESTS` - skip tests passed in the previous runs,
+    `true` by default
 
 ## Troubleshooting
 

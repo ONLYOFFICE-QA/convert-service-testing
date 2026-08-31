@@ -4,6 +4,9 @@
 
 ### New Features
 
+* Add `CsvReport` helper for reading, writing and merging `csv` reports
+* Add `TestReport` helper which writes results of the run to the `csv` report
+* Add unit tests for the report helpers
 * Add `dependabot` check for `GitHub Actions`
 * Add `ruby-3.3` to CI
 * Add `ruby-3.4` to CI
@@ -11,6 +14,8 @@
 
 ### Changes
 
+* Write test results to the `csv` reports instead of `palladium`
+* Remove `palladium` dependency and its token check from the pre-test checks
 * Remove `ruby-3.0` from CI, since it's EOLed
 
 ### Fixes

@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
+require 'onlyoffice_logger_helper/logger_helper'
+require_relative '../config/StaticData'
 require_relative '../helpers/image_helper'
+require_relative '../helpers/csv_report'
+require_relative '../helpers/example_status'
+require_relative '../helpers/test_report'
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

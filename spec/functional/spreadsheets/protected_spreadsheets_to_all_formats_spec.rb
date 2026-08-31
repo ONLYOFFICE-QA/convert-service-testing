@@ -2,8 +2,8 @@
 
 require './spec/spec_helper'
 
-palladium = PalladiumHelper.new DocumentServerHelper.get_version, 'Protected Spreadsheets to All'
-result_sets = palladium.get_result_sets StaticData::POSITIVE_STATUSES
+report = TestReport.new(DocumentServerHelper.get_version, 'Protected Spreadsheets to All')
+completed_tests = report.completed_tests(StaticData::POSITIVE_STATUSES)
 files = StaticData::SPREADSHEETS['protected_spreadsheets']
 output_formats = StaticData::OUTPUT_FORMATS
 
@@ -19,7 +19,7 @@ describe 'Convert protected spreadsheets to all formats by convert service' do
 
     out_formats.each do |out_format|
       test_name = "#{input_format} to #{out_format}"
-      next if result_sets.include?(test_name) || input_format == out_format
+      next if completed_tests.include?(test_name) || input_format == out_format
 
       it test_name do
         file_path = s3.download_file_by_name(s3_file_path, @tmp_dir)
@@ -36,6 +36,6 @@ describe 'Convert protected spreadsheets to all formats by convert service' do
 
   after do |example|
     FileUtils.rm_rf(@tmp_dir, secure: true)
-    palladium.add_result_and_log(example)
+    report.add_result_and_log(example)
   end
 end

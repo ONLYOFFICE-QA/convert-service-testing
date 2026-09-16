@@ -16,7 +16,8 @@
     "pdf",
     "png",
     "rtf",
-    "txt"
+    "txt",
+    "md"
   ],
 
   "spreadsheets":[

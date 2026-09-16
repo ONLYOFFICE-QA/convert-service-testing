@@ -32,7 +32,8 @@
     "xlsx",
     "xltm",
     "xltx",
-    "xlsb"
+    "xlsb",
+    "xls"
   ],
 
   "presentations": [
